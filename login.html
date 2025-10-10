@@ -1,0 +1,66 @@
+mình đang muốn ít class css nhất có thể nhưng có những yêu cầu sau
+* khi các giá trị cảm biến temperature, humidity, light theo từng mức thì sẽ có những hiệu ứng icon khác nhau. ví dụ:
+nhiệt độ trên trên 30 độ thì đỏ chói, mà từ 20-30 độ thì vàng
+* khi hover thì chỉ cần hiệu ứng bình thường của class card thôi, đơn giản nhất có thể nhưng nhìn gọn và hiện đại nhé
+có thể chỉnh cả file js
+import { useEffect, useState } from "react";
+
+function SensorCards() {
+const [sensorData, setSensorData] = useState({
+temperature: null,
+humidity: null,
+light: null,
+});
+
+// Fetch dữ liệu từ backend
+useEffect(() => {
+const fetchData = async () => {
+try {
+const res = await fetch("http://localhost:5000/api/sensors/latest");
+const data = await res.json();
+setSensorData(data);
+} catch (err) {
+console.error("Error fetching sensor data:", err);
+}
+};
+
+fetchData();
+
+// Tự động cập nhật mỗi 5s
+const interval = setInterval(fetchData, 5000);
+return () => clearInterval(interval);
+}, []);
+
+return (
+<>
+    {/* Temperature */}
+    <div className="p-3 mb-3 text-center flex-fill sensor-card">
+        <h5 className="fw-bold">Temperature</h5>
+        <h2>
+            {sensorData.temperature !== null ? ${sensorData.temperature}°C : "--"}
+        </h2>
+        <i className="bi bi-thermometer-half text-danger fs-1 mb-2"></i>
+    </div>
+
+    {/* Humidity */}
+    <div className="p-3 mb-3 text-center flex-fill sensor-card">
+        <h5 className="fw-bold">Humidity</h5>
+        <h2>
+            {sensorData.humidity !== null ? ${sensorData.humidity}% : "--"}
+        </h2>
+        <i className="bi bi-droplet-half text-primary fs-1 mb-2"></i>
+    </div>
+
+    {/* Light Level */}
+    <div className="p-3 mb-3 text-center flex-fill sensor-card">
+        <h5 className="fw-bold">Light Level</h5>
+        <h2>
+            {sensorData.light !== null ? ${sensorData.light} lx : "--"}
+        </h2>
+        <i className="bi bi-brightness-high text-warning fs-1 mb-2"></i>
+    </div>
+</>
+);
+}
+
+export default SensorCards;

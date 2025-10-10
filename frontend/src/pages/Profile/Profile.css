@@ -1,0 +1,67 @@
+/* Profile.css */
+
+/* Custom background gradient cho header */
+.bg-light-purple {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Avatar styling */
+.profile-avatar {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.05);
+}
+
+/* Card styling */
+.card {
+    border: none !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Form control styling */
+.form-control {
+    border: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    background-color: #fff;
+}
+
+/* Button styling */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Link styling */
+a.text-decoration-none {
+    color: #667eea;
+    transition: color 0.3s ease;
+}
+
+a.text-decoration-none:hover {
+    color: #764ba2;
+}
+
+/* Label styling */
+.form-label {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}

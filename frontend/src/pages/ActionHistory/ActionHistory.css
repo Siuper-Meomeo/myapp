@@ -1,0 +1,107 @@
+body {
+    background-color: #f9f9fc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    margin-right: 15px;
+}
+
+/* Main Container */
+.main-container {
+    padding: 30px;
+}
+
+/* Search box */
+.input-group {
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+    background: #fff;
+}
+
+.input-group input,
+.input-group select {
+    border: none;
+    padding: 12px 18px;
+    font-size: 15px;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Search Button */
+.input-group .btn {
+    border-radius: 50%;
+    background-color: #7c3aed;
+    border: none;
+    color: #fff;
+    padding: 12px 14px;
+    transition: 0.3s;
+}
+
+.input-group .btn:hover {
+    background-color: #5b21b6;
+    transform: scale(1.05);
+}
+
+/* Card wrapper */
+.card {
+    border-radius: 20px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    background: #fff;
+}
+
+/* Table */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: #9060e3 !important;
+    /* tím đậm */
+    color: #fff !important;
+    /* chữ trắng */
+    font-weight: 600;
+    font-size: 15px;
+    text-transform: uppercase;
+    border: none;
+}
+
+.table tbody tr td {
+    vertical-align: middle;
+    padding: 14px;
+    font-size: 14px;
+    color: #444;
+}
+
+.table tbody tr:hover {
+    background-color: #f4f0ff;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 20px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #7c3aed;
+    border-color: #7c3aed;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.4);
+}
+
+.pagination .page-link {
+    color: #7c3aed;
+    border-radius: 10px;
+    border: none;
+    transition: 0.3s;
+}
+
+.pagination .page-link:hover {
+    background-color: #ede9fe;
+    color: #4b0082;
+}

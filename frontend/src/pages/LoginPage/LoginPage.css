@@ -1,0 +1,82 @@
+/* Toàn trang chia làm 2 bên */
+.login-page {
+    display: flex;
+    height: 100vh;
+}
+
+/* Background toàn màn hình */
+.login-page {
+    background: url("https://i.pinimg.com/736x/fd/49/33/fd4933503729a589a27e106a8caaa71e.jpg") no-repeat center center;
+    background-size: cover;
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Box login */
+.login-box {
+    background: #fff;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 380px;
+}
+
+.welcome-text {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.iot-text {
+    font-weight: 600;
+    color: #6d8f47;
+}
+
+.login-title {
+    font-weight: 700;
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+
+.form-control {
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.forgot-link {
+    font-size: 14px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+/* Button */
+.btn-login {
+    background-color: #6d8f47;
+    color: #fff;
+    font-weight: 500;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    width: 100%;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #5a763a;
+}
+
+.message {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #d9534f;
+}
