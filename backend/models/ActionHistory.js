@@ -1,11 +1,7 @@
 // models/ActionHistory.js
 const db = require("../services/db");
 
-// ⭐ GIỚI HẠN TOÀN CỤC - Chỉ làm việc với 100 bản ghi mới nhất
-const MAX_TOTAL_RECORDS = 100;
-
-// Lấy trạng thái hiện tại của 1 thiết bị
-// ⭐ KHÔNG CẦN GIỚI HẠN: Chỉ lấy 1 bản ghi mới nhất
+// Lấy trạng thái hiện tại của 1 thiết bị (giữ nguyên logic cũ)
 function getDevice(deviceName, callback) {
     const sql = `
         SELECT action, created_at
@@ -31,12 +27,8 @@ function getDevice(deviceName, callback) {
     });
 }
 
-// Lấy N bản ghi gần nhất từ bảng device_control
-// ⭐ ĐÃ GIỚI HẠN: Tối đa 100 bản ghi
-function getData(limit = 100, callback) {
-    // Đảm bảo không vượt quá MAX_TOTAL_RECORDS
-    const safeLimit = Math.min(limit, MAX_TOTAL_RECORDS);
-
+// ✅ Lấy toàn bộ dữ liệu (bỏ giới hạn 100 bản ghi)
+function getData(callback) {
     const sql = `
         SELECT 
             id,
@@ -44,18 +36,15 @@ function getData(limit = 100, callback) {
             action,
             created_at AS time
         FROM device_control
-        ORDER BY id DESC
-        LIMIT ?;
+        ORDER BY id DESC;
     `;
-
-    db.query(sql, [safeLimit], (err, results) => {
+    db.query(sql, (err, results) => {
         if (err) return callback(err);
         callback(null, results);
     });
 }
 
-// Tìm kiếm + lọc + sắp xếp + phân trang cho action history
-// ⭐ ĐÃ GIỚI HẠN: Chỉ tìm kiếm trong 100 bản ghi mới nhất
+// ✅ Tìm kiếm + lọc + sắp xếp + phân trang KHÔNG GIỚI HẠN
 function searchActionHistory({ deviceFilter, actionFilter, query, sortBy, sortOrder, page, limit }, callback) {
 
     const allowedDevices = ["ALL", "led1", "led2", "led3"];
@@ -77,27 +66,19 @@ function searchActionHistory({ deviceFilter, actionFilter, query, sortBy, sortOr
     let sqlData, sqlCount;
     let paramsCount = [], paramsData = [];
 
-    // ⭐ Build base query với subquery để giới hạn 100 bản ghi mới nhất
+    // ✅ KHÔNG DÙNG subquery giới hạn 100 bản ghi nữa
     sqlData = `
         SELECT 
             id,
             device_name,
             action,
             created_at AS time
-        FROM (
-            SELECT * FROM device_control
-            ORDER BY created_at DESC
-            LIMIT ${MAX_TOTAL_RECORDS}
-        ) AS recent_data
+        FROM device_control
         WHERE 1=1`;
 
     sqlCount = `
         SELECT COUNT(*) AS total
-        FROM (
-            SELECT * FROM device_control
-            ORDER BY created_at DESC
-            LIMIT ${MAX_TOTAL_RECORDS}
-        ) AS recent_data
+        FROM device_control
         WHERE 1=1`;
 
     // 1. Lọc theo device_name
@@ -121,9 +102,9 @@ function searchActionHistory({ deviceFilter, actionFilter, query, sortBy, sortOr
     // 3. Tìm kiếm string cho ngày hoặc giờ
     if (query && query.trim() !== '') {
         const searchCondition = ` AND (
-            DATE_FORMAT(time, '%Y-%m-%d') LIKE ? OR 
-            DATE_FORMAT(time, '%H:%i:%s') LIKE ? OR
-            DATE_FORMAT(time, '%Y-%m-%d %H:%i:%s') LIKE ?
+            DATE_FORMAT(created_at, '%Y-%m-%d') LIKE ? OR 
+            DATE_FORMAT(created_at, '%H:%i:%s') LIKE ? OR
+            DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') LIKE ?
         )`;
 
         sqlData += searchCondition;
@@ -134,7 +115,7 @@ function searchActionHistory({ deviceFilter, actionFilter, query, sortBy, sortOr
         paramsData.push(likeQuery, likeQuery, likeQuery);
     }
 
-    // Add ORDER BY and pagination
+    // ORDER BY và phân trang
     sqlData += ` ORDER BY ${sortColumn} ${sortDirection} LIMIT ? OFFSET ?`;
     paramsData.push(limit, offset);
 
@@ -151,8 +132,6 @@ function searchActionHistory({ deviceFilter, actionFilter, query, sortBy, sortOr
                 console.error("SQL Error:", err);
                 return callback(err);
             }
-
-            console.log("Query results (first 3 records):", results.slice(0, 3));
 
             callback(null, {
                 data: results,

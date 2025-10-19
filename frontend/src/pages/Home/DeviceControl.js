@@ -1,8 +1,57 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, createContext, useContext } from "react";
 
-function DeviceCard({ room, deviceName, icon }) {
+// 🔹 Context để share SSE connection
+const SSEContext = createContext(null);
+
+// 🔹 Provider để quản lý SSE connection duy nhất
+function SSEProvider({ children }) {
+    const [sseData, setSSEData] = useState(null);
+    const eventSourceRef = useRef(null);
+
+    useEffect(() => {
+        console.log("🔌 Creating SSE connection...");
+        const eventSource = new EventSource("http://localhost:5000/api/mqtt/stream");
+        eventSourceRef.current = eventSource;
+
+        eventSource.onopen = () => {
+            console.log("✅ SSE Connected!");
+        };
+
+        eventSource.onmessage = (event) => {
+            // Skip comments (heartbeat, connected messages)
+            if (event.data.startsWith(":")) return;
+
+            try {
+                const data = JSON.parse(event.data);
+                console.log("📡 SSE Received:", data);
+                setSSEData(data); // Broadcast to all subscribers
+            } catch (err) {
+                console.error("❌ SSE Parse error:", err);
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error("❌ SSE Connection error:", error);
+        };
+
+        return () => {
+            console.log("🔌 Closing SSE connection");
+            eventSource.close();
+        };
+    }, []);
+
+    return (
+        <SSEContext.Provider value={sseData}>
+            {children}
+        </SSEContext.Provider>
+    );
+}
+
+function DeviceCard({ room, deviceName }) {
     const [isOn, setIsOn] = useState(false);
     const [loading, setLoading] = useState(false);
+    const timeoutRef = useRef(null);
+    const sseData = useContext(SSEContext); // 📡 Lắng nghe SSE data
 
     // 🔹 Lấy trạng thái ban đầu từ backend
     useEffect(() => {
@@ -18,14 +67,41 @@ function DeviceCard({ room, deviceName, icon }) {
         fetchState();
     }, [deviceName]);
 
+    // 🔹 Lắng nghe SSE updates
+    useEffect(() => {
+        if (!sseData) return;
+
+        // ✅ CHỈ CẬP NHẬT KHI ĐÚNG THIẾT BỊ
+        if (sseData.device === deviceName) {
+            console.log(`✅ [${deviceName}] Updating to: ${sseData.status}`);
+            setIsOn(sseData.status === "on");
+            setLoading(false);
+
+            // Clear timeout
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+                timeoutRef.current = null;
+            }
+        }
+    }, [sseData, deviceName]);
+
     // 🔹 Xử lý toggle ON/OFF
     const handleToggle = async () => {
-        const newState = !isOn;
-        setLoading(true); // bật spinner ngay khi click
+        if (loading) return;
 
-        // Tạo controller để timeout nếu mất WiFi
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 5000); // sau 5s sẽ abort
+        const newState = !isOn;
+        const previousState = isOn;
+
+        // ✅ Optimistic update
+        setIsOn(newState);
+        setLoading(true);
+
+        // ⏱️ Timeout 5s
+        timeoutRef.current = setTimeout(() => {
+            setLoading(false);
+            setIsOn(previousState); // Revert
+            alert(`⚠️ Timeout: ${deviceName} không phản hồi`);
+        }, 5000);
 
         try {
             const res = await fetch("http://localhost:5000/api/actions/control", {
@@ -35,28 +111,30 @@ function DeviceCard({ room, deviceName, icon }) {
                     device_name: deviceName,
                     action: newState ? "on" : "off",
                 }),
-                signal: controller.signal, // truyền signal vào fetch
             });
 
-            clearTimeout(timeout);
+            if (!res.ok) {
+                throw new Error("Network error");
+            }
 
-            if (!res.ok) throw new Error("Network error");
+            // Đợi ESP32 xác nhận qua SSE
 
-            // Nếu request thành công -> cập nhật trạng thái
-            setIsOn(newState);
         } catch (err) {
-            console.error("Error updating device state:", err);
-            // rollback trạng thái cũ nếu lỗi
-            setIsOn(isOn);
-        } finally {
-            setLoading(false); // luôn tắt spinner (kể cả lỗi hay thành công)
+            console.error("Error sending command:", err);
+            setIsOn(previousState); // Revert
+            setLoading(false);
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+                timeoutRef.current = null;
+            }
         }
     };
 
     return (
         <div
             className={`light-card ${isOn ? "active" : ""}`}
-            onClick={!loading ? handleToggle : undefined}
+            onClick={handleToggle}
+            style={{ cursor: loading ? "wait" : "pointer" }}
         >
             <div className="light-icon">
                 {loading ? (
@@ -85,13 +163,15 @@ function DeviceCard({ room, deviceName, icon }) {
 
 function DeviceControl() {
     return (
-        <div className="device-control-dashboard">
-            <div className="cards-container">
-                <DeviceCard room="Living Room" deviceName="led1" />
-                <DeviceCard room="Bedroom" deviceName="led2" />
-                <DeviceCard room="Kitchen" deviceName="led3" />
+        <SSEProvider>
+            <div className="device-control-dashboard">
+                <div className="cards-container">
+                    <DeviceCard room="Living Room" deviceName="led1" />
+                    <DeviceCard room="Bedroom" deviceName="led2" />
+                    <DeviceCard room="Kitchen" deviceName="led3" />
+                </div>
             </div>
-        </div>
+        </SSEProvider>
     );
 }
 

@@ -68,11 +68,10 @@ function getMergedData(limit = 100, callback) {
     });
 }
 
-// Tìm kiếm + lọc + sắp xếp + phân trang - PHIÊN BẢN FIXED
+// Tìm kiếm + lọc + sắp xếp + phân trang - KHÔNG GIỚI HẠN SỐ BẢN GHI
 function searchSensorData({ field, query, sortBy, sortOrder, page, limit }, callback) {
     const allowedFields = ["temperature", "humidity", "light", "ALL"];
     const allowedSortCols = ["id", "temperature", "humidity", "light", "created_at"];
-    const MAX_TOTAL_RECORDS = 100;
 
     if (!allowedFields.includes(field)) {
         return callback(new Error("Invalid field name"));
@@ -86,14 +85,8 @@ function searchSensorData({ field, query, sortBy, sortOrder, page, limit }, call
     let paramsCount = [], paramsData = [];
 
     if (field !== "ALL") {
-        // Sử dụng CTE
+        // Query cho một trường cụ thể
         sqlData = `
-            WITH recent_data AS (
-                SELECT * FROM sensor_data
-                WHERE ${field} IS NOT NULL
-                ORDER BY created_at DESC
-                LIMIT ${MAX_TOTAL_RECORDS}
-            )
             SELECT 
                 id, 
                 ${field} AS value, 
@@ -101,19 +94,13 @@ function searchSensorData({ field, query, sortBy, sortOrder, page, limit }, call
                 humidity, 
                 light,
                 created_at AS time
-            FROM recent_data
-            WHERE 1=1`;
+            FROM sensor_data
+            WHERE ${field} IS NOT NULL`;
 
         sqlCount = `
-            WITH recent_data AS (
-                SELECT * FROM sensor_data
-                WHERE ${field} IS NOT NULL
-                ORDER BY created_at DESC
-                LIMIT ${MAX_TOTAL_RECORDS}
-            )
             SELECT COUNT(*) AS total
-            FROM recent_data
-            WHERE 1=1`;
+            FROM sensor_data
+            WHERE ${field} IS NOT NULL`;
 
         if (query && query.trim() !== '') {
             const searchCondition = ` AND (
@@ -136,28 +123,18 @@ function searchSensorData({ field, query, sortBy, sortOrder, page, limit }, call
     } else {
         // Trường hợp ALL
         sqlData = `
-            WITH recent_data AS (
-                SELECT * FROM sensor_data
-                ORDER BY created_at DESC
-                LIMIT ${MAX_TOTAL_RECORDS}
-            )
             SELECT 
                 id, 
                 temperature, 
                 humidity, 
                 light, 
                 created_at AS time
-            FROM recent_data
+            FROM sensor_data
             WHERE 1=1`;
 
         sqlCount = `
-            WITH recent_data AS (
-                SELECT * FROM sensor_data
-                ORDER BY created_at DESC
-                LIMIT ${MAX_TOTAL_RECORDS}
-            )
             SELECT COUNT(*) AS total
-            FROM recent_data
+            FROM sensor_data
             WHERE 1=1`;
 
         if (query && query.trim() !== '') {

@@ -48,7 +48,7 @@ function Profile() {
                                             {/* Quick Links */}
                                             <div className="d-grid gap-2">
                                                 <a
-                                                    href="https://drive.google.com/file/d/1XYsA3WwGBtlTIe8wFr9cbgizxmtI0leF/view?usp=sharing"
+                                                    href="https://drive.google.com/file/d/1Ce9BVbqJB-Us66AdfXHM07xox-F19TVS/view?usp=sharing"
                                                     className="btn btn-outline-danger btn-sm"
                                                     target="_blank"
                                                     rel="noopener noreferrer"
@@ -64,6 +64,15 @@ function Profile() {
                                                 >
                                                     <i className="bi bi-github me-2"></i>
                                                     GitHub Profile
+                                                </a>
+                                                <a
+                                                    href="https://documenter.getpostman.com/view/48286120/2sB3QKrpud"
+                                                    className="btn btn-outline-success btn-sm"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    <i className="bi bi-file-earmark-text me-2"></i>
+                                                    API Documentation
                                                 </a>
                                             </div>
                                         </div>
@@ -197,7 +206,7 @@ function Profile() {
                                             <div className="row mt-5 g-3">
                                                 <div className="col-4">
                                                     <div className="text-center p-3 bg-light rounded">
-                                                        <div className="fs-4 fw-bold text-primary">3rd</div>
+                                                        <div className="fs-4 fw-bold text-primary">4th</div>
                                                         <small className="text-muted">Year</small>
                                                     </div>
                                                 </div>
@@ -209,7 +218,7 @@ function Profile() {
                                                 </div>
                                                 <div className="col-4">
                                                     <div className="text-center p-3 bg-light rounded">
-                                                        <div className="fs-4 fw-bold text-warning">2025</div>
+                                                        <div className="fs-4 fw-bold text-warning">2027</div>
                                                         <small className="text-muted">Graduate</small>
                                                     </div>
                                                 </div>

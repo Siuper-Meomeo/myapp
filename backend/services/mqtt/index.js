@@ -6,17 +6,20 @@ mqttClient.on("connect", () => {
     mqttClient.subscribe(topics, (err) => {
         if (!err) console.log("📡 Subscribed:", topics.join(", "));
     });
+});
 
-    mqttClient.on("message", (topic, message) => {
-        const msg = message.toString();
-        if (handlers[topic]) {
-            handlers[topic](msg);
-        } else if (topic.endsWith("status")) {
-            handlers["status"](topic, msg);
-        } else {
-            console.log("⚠️ Unknown topic:", topic);
-        }
-    });
+// ✅ Đặt message handler ở đây (không lồng trong connect)
+mqttClient.on("message", (topic, message) => {
+    const msg = message.toString();
+    console.log(`📨 MQTT Received [${topic}]: ${msg}`);
+
+    if (handlers[topic]) {
+        handlers[topic](msg);
+    } else if (topic.endsWith("/status")) { // ✅ Sửa thành "/status"
+        handlers["status"](topic, msg);
+    } else {
+        console.log("⚠️ Unknown topic:", topic);
+    }
 });
 
 const publish = {

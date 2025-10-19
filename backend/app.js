@@ -3,8 +3,10 @@ const express = require("express");
 const cors = require("cors");
 const db = require("./services/db");
 require("dotenv").config();
+require("./services/mqtt");
 
 const { getStatus } = require("./services/mqtt/index"); // ✅ lấy hàm getStatus từ mqtt
+const { router: mqttRoutes } = require("./routes/mqtt");
 
 const app = express();
 app.use(cors());
@@ -22,6 +24,7 @@ const actionRoutes = require("./routes/action");
 app.use("/api/auth", authRoutes);
 app.use("/api/sensors", sensorRoutes);
 app.use("/api/actions", actionRoutes);
+app.use("/api/mqtt", mqttRoutes);
 
 // ✅ API check MQTT status
 app.get("/api/status", (req, res) => {
